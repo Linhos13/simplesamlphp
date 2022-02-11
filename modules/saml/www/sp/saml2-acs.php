@@ -105,8 +105,8 @@ if ($state) {
     // check that the authentication source is correct
     assert(array_key_exists('saml:sp:AuthId', $state));
     if ($state['saml:sp:AuthId'] !== $sourceId) {
-        throw new \SimpleSAML\Error\Exception(
-            'The authentication source id in the URL does not match the authentication source which sent the request.'
+        throw new SimpleSAML_Error_Exception(
+            'The authentication source id ('.$sourceId.') in the URL does not match the authentication source ('.$state['saml:sp:AuthId'].') which sent the request.'
         );
     }
 
