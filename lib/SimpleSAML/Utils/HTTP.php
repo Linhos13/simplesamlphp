@@ -133,9 +133,12 @@ class HTTP
      *
      * @author Olav Morken, UNINETT AS <olav.morken@uninett.no>
      */
-    public static function getServerHTTPS()
+    public static function getServerHTTPS() 
     {
-        if (!array_key_exists('HTTPS', $_SERVER)) {
+        if(!array_key_exists('HTTPS', $_SERVER) && isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+            $_SERVER['HTTPS'] = 'on';
+        }
+        if(!array_key_exists('HTTPS', $_SERVER)) {
             // not an https-request
             return false;
         }
@@ -165,10 +168,10 @@ class HTTP
 
         // Take care of edge-case where SERVER_PORT is an integer
         $port = strval($port);
-
-        if ($port !== $default_port) {
-            return ':' . $port;
-        }
+// TODO: X_FORWARDED_PORT
+//        if ($port !== $default_port) {
+//            return ':'.$port;
+//        }
         return '';
     }
 
