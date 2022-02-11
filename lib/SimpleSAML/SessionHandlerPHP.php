@@ -49,30 +49,29 @@ class SessionHandlerPHP extends SessionHandler
 
         $config = Configuration::getInstance();
         $this->cookie_name = $config->getString('session.phpsession.cookiename', null);
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            if (session_name() === $this->cookie_name || $this->cookie_name === null) {
-                Logger::warning(
-                    'There is already a PHP session with the same name as SimpleSAMLphp\'s session, or the ' .
-                    "'session.phpsession.cookiename' configuration option is not set. Make sure to set " .
-                    "SimpleSAMLphp's cookie name with a value not used by any other applications."
-                );
-            }
-
-            /*
-             * We shouldn't have a session at this point, so it might be an application session. Save the details to
-             * retrieve it later and commit.
-             */
-            $this->previous_session['cookie_params'] = session_get_cookie_params();
-            $this->previous_session['id'] = session_id();
-            $this->previous_session['name'] = session_name();
-            session_write_close();
+        
+        // DOTO-devel: fixed, fork repo and update it
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        if (session_name() === $this->cookie_name || $this->cookie_name === null) {
+            Logger::warning(
+                'There is already a PHP session with the same name as SimpleSAMLphp\'s session, or the '.
+                "'session.phpsession.cookiename' configuration option is not set. Make sure to set ".
+                "SimpleSAMLphp's cookie name with a value not used by any other applications."
+            );
         }
 
-
-        if (empty($this->cookie_name)) {
-            $this->cookie_name = session_name();
-        } elseif (!headers_sent() || version_compare(PHP_VERSION, '7.2', '<')) {
+        /*
+         * We shouldn't have a session at this point, so it might be an application session. Save the details to
+         * retrieve it later and commit.
+         */
+        $this->previous_session['cookie_params'] = session_get_cookie_params();
+        $this->previous_session['id'] = session_id();
+        $this->previous_session['name'] = session_name();
+        session_write_close();
+        
+        if (!empty($this->cookie_name)) {
             session_name($this->cookie_name);
         }
 
